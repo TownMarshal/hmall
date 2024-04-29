@@ -18,6 +18,7 @@ import com.hmall.common.utils.CollUtils;
 import com.hmall.common.utils.UserContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -115,7 +116,8 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         */
         List<ItemDTO> items = itemClient.queryItemByIds(itemIds);
         if (CollUtils.isEmpty(items)) {
-            throw new BadRequestException("购物车中商品不存在！");
+//            throw new BadRequestException("购物车中商品不存在！");
+            return;
         }
         // 3.转为 id 到 item的map
         Map<Long, ItemDTO> itemMap = items.stream()
@@ -133,6 +135,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     }
 
     @Override
+    @Transactional
     public void removeByItemIds(Collection<Long> itemIds) {
         // 1.构建删除条件，userId和itemId
         QueryWrapper<Cart> queryWrapper = new QueryWrapper<Cart>();
@@ -144,12 +147,20 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     }
 
 
+    private void checkCartsFull(Long userId) {
+        int count = Math.toIntExact(lambdaQuery().eq(Cart::getUserId, userId).count());
+        if (count >= cartProperties.getMaxItems()) {
+            throw new BizIllegalException(
+                    StrUtil.format("用户购物车课程不能超过{}", cartProperties.getMaxItems()));
+        }
+    }
    /* private void checkCartsFull(Long userId) {
         int count = Math.toIntExact(lambdaQuery().eq(Cart::getUserId, userId).count());
         if (count >= 10) {
             throw new BizIllegalException(StrUtil.format("用户购物车课程不能超过{}", 10));
         }
     }*/
+
 
     private boolean checkItemExists(Long itemId, Long userId) {
         int count = Math.toIntExact(lambdaQuery()
@@ -159,13 +170,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         return count > 0;
     }
 
-    private void checkCartsFull(Long userId) {
-        int count = Math.toIntExact(lambdaQuery().eq(Cart::getUserId, userId).count());
-        if (count >= cartProperties.getMaxItems()) {
-            throw new BizIllegalException(
-                    StrUtil.format("用户购物车课程不能超过{}", cartProperties.getMaxItems()));
-        }
-    }
+
 
  /*   private boolean checkItemExists(Long itemId, Long userId) {
         int count = lambdaQuery()

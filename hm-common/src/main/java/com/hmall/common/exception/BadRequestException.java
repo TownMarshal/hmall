@@ -1,5 +1,8 @@
 package com.hmall.common.exception;
 
+/**
+ * @author Administrator
+ */
 public class BadRequestException extends CommonException{
 
     public BadRequestException(String message) {
