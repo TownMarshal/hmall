@@ -1,4 +1,54 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: user-service
+  cloud:
+    nacos:
+      server-addr: 192.168.58.129:8848 # nacos地址
+  datasource:
+    url: jdbc:mysql://192.168.58.129:3306/hm-user?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123
+mybatis-plus:
+  type-aliases-package: com.hmall.user.mapper
+  mapper-locations: classpath:/mappers/*.xml
+  configuration:
+    #开启驼峰命名
+    map-underscore-to-camel-case: true
+    # 是否开启二级缓存
+    cache-enabled: true
+  global-config:
+    db-config:
+      #全局的，在类上通过注释选择的方式只针对一张表有效
+      id-type: assign_id # id为雪花算法生成
+  type-enums-package: com.hmall.common.enums
+logging:
+  level:
+    com.hmall: debug
+  pattern:
+    dateformat: HH:mm:ss:SSS
+  file:
+    path: "logs/${spring.application.name}"
+knife4j:
+  enable: true
+  openapi:
+    title: 黑马商城用户管理接口文档
+    description: "黑马商城用户管理接口文档"
+    email: zhanghuyi@itcast.cn
+    concat: 虎哥
+    url: https://www.itcast.cn
+    version: v1.0.0
+    group:
+      default:
+        group-name: default
+        api-rule: package
+        api-rule-resources:
+          - com.hmall.user.controller
 hm:
-  db:
-    host: mysql
-    pw: 123
+  jwt:
+    location: classpath:hmall.jks
+    alias: hmall
+    password: hmall123
+    tokenTTL: 30m

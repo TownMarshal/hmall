@@ -76,9 +76,9 @@ public class ItemController {
         itemService.removeById(id);
     }
 
-/*    @ApiOperation("批量扣减库存")
+   @ApiOperation("批量扣减库存")
     @PutMapping("/stock/deduct")
     public void deductStock(@RequestBody List<OrderDetailDTO> items){
         itemService.deductStock(items);
-    }*/
+    }
 }

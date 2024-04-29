@@ -6,6 +6,7 @@ import com.hmall.api.client.ItemClient;
 import com.hmall.api.dto.ItemDTO;
 import com.hmall.api.dto.OrderDetailDTO;
 import com.hmall.common.exception.BadRequestException;
+import com.hmall.common.utils.CollUtils;
 import com.hmall.common.utils.UserContext;
 
 import com.hmall.trade.domain.dto.OrderFormDTO;
@@ -53,7 +54,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 .collect(Collectors.toMap(OrderDetailDTO::getItemId, OrderDetailDTO::getNum));
         Set<Long> itemIds = itemNumMap.keySet();
         // 1.3.查询商品
-        List<ItemDTO> items = itemClient.queryItemsByIds(itemIds);
+        List<ItemDTO> items = itemClient.queryItemByIds(itemIds);
         if (items == null || items.size() < itemIds.size()) {
             throw new BadRequestException("商品不存在");
         }

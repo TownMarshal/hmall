@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import com.hmall.cart.domain.po.Cart;
 import com.hmall.cart.domain.vo.CartVO;
 import com.hmall.cart.domain.dto.CartFormDTO;
+
 import javax.validation.Valid;
 import java.util.List;
 
@@ -45,10 +46,10 @@ public class CartController {
         return cartService.queryMyCarts();
     }
 
-   /* @ApiOperation("批量删除购物车中商品")
+    @ApiOperation("批量删除购物车中商品")
     @ApiImplicitParam(name = "ids", value = "购物车条目id集合")
     @DeleteMapping
     public void deleteCartItemByIds(@RequestParam("ids") List<Long> ids) {
         cartService.removeByItemIds(ids);
-    }*/
+    }
 }
