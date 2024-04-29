@@ -144,12 +144,12 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     }
 
 
-    private void checkCartsFull(Long userId) {
+   /* private void checkCartsFull(Long userId) {
         int count = Math.toIntExact(lambdaQuery().eq(Cart::getUserId, userId).count());
         if (count >= 10) {
             throw new BizIllegalException(StrUtil.format("用户购物车课程不能超过{}", 10));
         }
-    }
+    }*/
 
     private boolean checkItemExists(Long itemId, Long userId) {
         int count = Math.toIntExact(lambdaQuery()
@@ -159,15 +159,15 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         return count > 0;
     }
 
-/*    private void checkCartsFull(Long userId) {
-        int count = lambdaQuery().eq(Cart::getUserId, userId).count();
+    private void checkCartsFull(Long userId) {
+        int count = Math.toIntExact(lambdaQuery().eq(Cart::getUserId, userId).count());
         if (count >= cartProperties.getMaxItems()) {
             throw new BizIllegalException(
                     StrUtil.format("用户购物车课程不能超过{}", cartProperties.getMaxItems()));
         }
     }
 
-    private boolean checkItemExists(Long itemId, Long userId) {
+ /*   private boolean checkItemExists(Long itemId, Long userId) {
         int count = lambdaQuery()
                 .eq(Cart::getUserId, userId)
                 .eq(Cart::getItemId, itemId)
