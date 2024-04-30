@@ -11,7 +11,6 @@ import com.hmall.cart.domain.po.Cart;
 import com.hmall.cart.domain.vo.CartVO;
 import com.hmall.cart.mapper.CartMapper;
 import com.hmall.cart.service.ICartService;
-import com.hmall.common.exception.BadRequestException;
 import com.hmall.common.exception.BizIllegalException;
 import com.hmall.common.utils.BeanUtils;
 import com.hmall.common.utils.CollUtils;
@@ -39,9 +38,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements ICartService {
 
-//    private final RestTemplate restTemplate;
-//
-//    private final DiscoveryClient discoveryClient;
+    // private final RestTemplate restTemplate;
+    //
+    // private final DiscoveryClient discoveryClient;
 
     private final ItemClient itemClient;
 
@@ -73,15 +72,17 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     @Override
     public List<CartVO> queryMyCarts() {
         // 1.查询我的购物车列表
-        List<Cart> carts = lambdaQuery()
-                .eq(Cart::getUserId, UserContext.getUser()).list();
+        List<Cart> carts = lambdaQuery().eq(Cart::getUserId, UserContext.getUser()).list();
         if (CollUtils.isEmpty(carts)) {
             return CollUtils.emptyList();
         }
+
         // 2.转换VO
         List<CartVO> vos = BeanUtils.copyList(carts, CartVO.class);
+
         // 3.处理VO中的商品信息
         handleCartItems(vos);
+
         // 4.返回
         return vos;
     }
@@ -91,14 +92,14 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         Set<Long> itemIds = vos.stream().map(CartVO::getItemId).collect(Collectors.toSet());
         // 2.查询商品
         /*
-        //2.1.根据服务名称获取服务的实例列表
+        // 2.1.根据服务名称获取服务的实例列表
         List<ServiceInstance> instances = discoveryClient.getInstances("item-service");
         if (CollUtil.isEmpty(instances)) {
             return;
         }
-        //2.2.负载均衡，从实例类表中挑选实例
+        // 2.2.手写负载均衡，从实例列表中挑选一个实例
         ServiceInstance instance = instances.get(RandomUtil.randomInt(instances.size()));
-        //2.3.利用RestTemplate发起http请求，得到http响应
+        // 2.3.利用RestTemplate发起http请求，得到http的响应
         ResponseEntity<List<ItemDTO>> response = restTemplate.exchange(
                 instance.getUri() + "/items?ids={ids}",
                 HttpMethod.GET,
@@ -107,8 +108,8 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
                 },
                 Map.of("ids", CollUtil.join(itemIds, ","))
         );
-        //2.2.解析响应
-        if (!response.getStatusCode().is2xxSuccessful()) {
+        // 2.3.解析响应
+        if(!response.getStatusCode().is2xxSuccessful()){
             // 查询失败，直接结束
             return;
         }
@@ -116,12 +117,10 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         */
         List<ItemDTO> items = itemClient.queryItemByIds(itemIds);
         if (CollUtils.isEmpty(items)) {
-//            throw new BadRequestException("购物车中商品不存在！");
             return;
         }
         // 3.转为 id 到 item的map
-        Map<Long, ItemDTO> itemMap = items.stream()
-                .collect(Collectors.toMap(ItemDTO::getId, Function.identity()));
+        Map<Long, ItemDTO> itemMap = items.stream().collect(Collectors.toMap(ItemDTO::getId, Function.identity()));
         // 4.写入vo
         for (CartVO v : vos) {
             ItemDTO item = itemMap.get(v.getItemId());
@@ -146,7 +145,6 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         remove(queryWrapper);
     }
 
-
     private void checkCartsFull(Long userId) {
         int count = Math.toIntExact(lambdaQuery().eq(Cart::getUserId, userId).count());
         if (count >= cartProperties.getMaxItems()) {
@@ -154,13 +152,6 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
                     StrUtil.format("用户购物车课程不能超过{}", cartProperties.getMaxItems()));
         }
     }
-   /* private void checkCartsFull(Long userId) {
-        int count = Math.toIntExact(lambdaQuery().eq(Cart::getUserId, userId).count());
-        if (count >= 10) {
-            throw new BizIllegalException(StrUtil.format("用户购物车课程不能超过{}", 10));
-        }
-    }*/
-
 
     private boolean checkItemExists(Long itemId, Long userId) {
         int count = Math.toIntExact(lambdaQuery()
@@ -169,14 +160,4 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
                 .count());
         return count > 0;
     }
-
-
-
- /*   private boolean checkItemExists(Long itemId, Long userId) {
-        int count = lambdaQuery()
-                .eq(Cart::getUserId, userId)
-                .eq(Cart::getItemId, itemId)
-                .count();
-        return count > 0;
-    }*/
 }

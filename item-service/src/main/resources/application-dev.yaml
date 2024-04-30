@@ -1,63 +1,63 @@
-server:
-  port: 8081
-spring:
-  application:
-    name: item-service
-  cloud:
-    nacos:
-      server-addr: 192.168.58.129:8848 # nacos地址
-  datasource:
-    url: jdbc:mysql://192.168.58.129:3306/hm-item?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 123
-#  rabbitmq:
-#    host: localhost
-#    port: 5672
-#    username: zec
-#    password: 123456
-#    virtual-host: /hmall
-#    #开启发送者的超时重试
-#    #超时重试主要是解决网络问题
-#    connection-timeout: 1s #设置MQ的连接超时时间，设置后默认是不开启超时重试机制的，需要在配置项继续设置
-#    template:
-#      retry:
-#        enabled: true #开启超时重试机制
-#        initial-interval: 1000ms #失败后的初始等待时间
-#        multiplier: 1 # 失败后下次的等待时长倍数，下次等待时长 = initial-interval * multiplier
-#        max-attempts: 3 # 最大重试次数
-mybatis-plus:
-  type-aliases-package: com.hmall.item.mapper
-  mapper-locations: classpath:/mappers/*.xml
-  configuration:
-    #开启驼峰命名
-    map-underscore-to-camel-case: true
-    # 是否开启二级缓存
-    cache-enabled: true
-  global-config:
-    db-config:
-      #全局的，在类上通过注释选择的方式只针对一张表有效
-      id-type: assign_id # id为雪花算法生成
-  type-enums-package: com.hmall.common.enums
-logging:
-  level:
-    com.hmall: debug
-  pattern:
-    dateformat: HH:mm:ss:SSS
-  file:
-    path: "logs/${spring.application.name}"
-knife4j:
-  enable: true
-  openapi:
-    title: 黑马商城商品管理接口文档
-    description: "黑马商城商品管理接口文档"
-    email: zhanghuyi@itcast.cn
-    concat: 虎哥
-    url: https://www.itcast.cn
-    version: v1.0.0
-    group:
-      default:
-        group-name: default
-        api-rule: package
-        api-rule-resources:
-          - com.hmall.item.controller
+#server:
+#  port: 8081
+#spring:
+#  application:
+#    name: item-service
+#  cloud:
+#    nacos:
+#      server-addr: 192.168.58.129:8848 # nacos地址
+#  datasource:
+#    url: jdbc:mysql://192.168.58.129:3306/hm-item?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    username: root
+#    password: 123
+##  rabbitmq:
+##    host: localhost
+##    port: 5672
+##    username: zec
+##    password: 123456
+##    virtual-host: /hmall
+##    #开启发送者的超时重试
+##    #超时重试主要是解决网络问题
+##    connection-timeout: 1s #设置MQ的连接超时时间，设置后默认是不开启超时重试机制的，需要在配置项继续设置
+##    template:
+##      retry:
+##        enabled: true #开启超时重试机制
+##        initial-interval: 1000ms #失败后的初始等待时间
+##        multiplier: 1 # 失败后下次的等待时长倍数，下次等待时长 = initial-interval * multiplier
+##        max-attempts: 3 # 最大重试次数
+#mybatis-plus:
+#  type-aliases-package: com.hmall.item.mapper
+#  mapper-locations: classpath:/mappers/*.xml
+#  configuration:
+#    #开启驼峰命名
+#    map-underscore-to-camel-case: true
+#    # 是否开启二级缓存
+#    cache-enabled: true
+#  global-config:
+#    db-config:
+#      #全局的，在类上通过注释选择的方式只针对一张表有效
+#      id-type: assign_id # id为雪花算法生成
+#  type-enums-package: com.hmall.common.enums
+#logging:
+#  level:
+#    com.hmall: debug
+#  pattern:
+#    dateformat: HH:mm:ss:SSS
+#  file:
+#    path: "logs/${spring.application.name}"
+#knife4j:
+#  enable: true
+#  openapi:
+#    title: 黑马商城商品管理接口文档
+#    description: "黑马商城商品管理接口文档"
+#    email: zhanghuyi@itcast.cn
+#    concat: 虎哥
+#    url: https://www.itcast.cn
+#    version: v1.0.0
+#    group:
+#      default:
+#        group-name: default
+#        api-rule: package
+#        api-rule-resources:
+#          - com.hmall.item.controller

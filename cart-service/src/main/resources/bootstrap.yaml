@@ -14,6 +14,7 @@ spring:
           - data-id: shared-log.yaml
           - data-id: shared-swagger.yaml
           - data-id: shared-okhttp.yaml
+          - data-id: shared-seata.yaml # 共享seata配置
 
 
 
