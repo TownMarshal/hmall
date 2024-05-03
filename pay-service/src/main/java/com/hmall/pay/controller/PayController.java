@@ -1,12 +1,13 @@
 package com.hmall.pay.controller;
 
+import com.hmall.common.domain.dto.PayApplyDTO;
+import com.hmall.common.domain.dto.PayOrderDTO;
+import com.hmall.common.domain.dto.PayOrderFormDTO;
+import com.hmall.common.domain.po.PayOrder;
+import com.hmall.common.domain.vo.PayOrderVO;
+import com.hmall.common.enums.PayType;
 import com.hmall.common.exception.BizIllegalException;
-
 import com.hmall.common.utils.BeanUtils;
-import com.hmall.pay.domain.dto.PayApplyDTO;
-import com.hmall.pay.domain.dto.PayOrderFormDTO;
-import com.hmall.pay.domain.vo.PayOrderVO;
-import com.hmall.pay.enums.PayType;
 import com.hmall.pay.service.IPayOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -42,9 +43,25 @@ public class PayController {
         payOrderService.tryPayOrderByBalance(payOrderFormDTO);
     }
 
+    //调试用
     @ApiOperation("查询支付单")
     @GetMapping
     public List<PayOrderVO> queryPayOrders() {
         return BeanUtils.copyList(payOrderService.list(), PayOrderVO.class);
+    }
+
+    @ApiOperation("根据id查询支付单")
+    @GetMapping("/biz/{id}")
+    public PayOrderDTO queryPayOrderByBizOrderNo(@PathVariable("id") Long id) {
+        PayOrder payOrder = payOrderService.lambdaQuery().eq(PayOrder::getBizOrderNo, id).one();
+        return BeanUtils.copyBean(payOrder, PayOrderDTO.class);
+    }
+
+    @ApiOperation("更新订单流水")
+    @PutMapping("/update")
+    public void update(@RequestBody PayOrderDTO payOrderDTO) {
+        PayOrder payOrder = new PayOrder();
+        org.springframework.beans.BeanUtils.copyProperties(payOrderDTO, payOrder);
+        payOrderService.updateById(payOrder);
     }
 }

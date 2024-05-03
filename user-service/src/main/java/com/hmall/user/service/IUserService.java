@@ -1,10 +1,9 @@
 package com.hmall.user.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.hmall.user.domain.dto.LoginFormDTO;
-import com.hmall.user.domain.po.User;
-import com.hmall.user.domain.vo.UserLoginVO;
-
+import com.hmall.common.domain.dto.LoginFormDTO;
+import com.hmall.common.domain.po.User;
+import com.hmall.common.domain.vo.UserLoginVO;
 
 /**
  * <p>

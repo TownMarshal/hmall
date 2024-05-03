@@ -6,12 +6,16 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import javax.validation.constraints.Min;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @ApiModel(description = "分页查询条件")
 @Accessors(chain = true)
 public class PageQuery {

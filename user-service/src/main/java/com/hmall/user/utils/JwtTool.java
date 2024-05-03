@@ -23,7 +23,7 @@ public class JwtTool {
     /**
      * 创建 access-token
      *
-     * @param userDTO 用户信息
+     * @param userId 用户信息
      * @return access-token
      */
     public String createToken(Long userId, Duration ttl) {

@@ -1,10 +1,11 @@
 package com.hmall.cart.mapper;
 
 
-import com.hmall.cart.domain.po.Cart;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.hmall.common.domain.po.Cart;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * <p>

@@ -5,6 +5,15 @@ spring:
     name: pay-service
   profiles:
     active: dev
+
+  rabbitmq:
+    host: 192.168.58.129 # rabbitMQ的ip地址
+    port: 5672 # 端口:
+    #    addresses: 192.168.58.129:8071,192.168.58.129:8072,192.168.58.129:8073
+    username: admin
+    password: 123456
+    virtual-host: /
+
   datasource:
     url: jdbc:mysql://${hm.db.host}:3306/hm-pay?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver

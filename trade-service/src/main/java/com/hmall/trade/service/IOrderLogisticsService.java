@@ -1,12 +1,12 @@
 package com.hmall.trade.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.hmall.trade.domain.po.OrderLogistics;
+import com.hmall.common.domain.po.OrderLogistics;
 
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author 虎哥

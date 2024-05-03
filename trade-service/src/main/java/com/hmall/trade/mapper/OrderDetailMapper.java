@@ -1,7 +1,7 @@
 package com.hmall.trade.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.hmall.trade.domain.po.OrderDetail;
+import com.hmall.common.domain.po.OrderDetail;
 
 /**
  * <p>

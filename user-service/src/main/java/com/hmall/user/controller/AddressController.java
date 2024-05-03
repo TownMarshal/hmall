@@ -1,12 +1,12 @@
 package com.hmall.user.controller;
 
 
+import com.hmall.common.domain.dto.AddressDTO;
+import com.hmall.common.domain.po.Address;
 import com.hmall.common.exception.BadRequestException;
 import com.hmall.common.utils.BeanUtils;
 import com.hmall.common.utils.CollUtils;
 import com.hmall.common.utils.UserContext;
-import com.hmall.user.domain.dto.AddressDTO;
-import com.hmall.user.domain.po.Address;
 import com.hmall.user.service.IAddressService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

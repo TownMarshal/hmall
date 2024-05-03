@@ -15,6 +15,14 @@ spring:
           - data-id: shared-swagger.yaml
           - data-id: shared-seata.yaml # 共享seata配置
 
+  rabbitmq:
+    host: 192.168.58.129 # rabbitMQ的ip地址
+    port: 5672 # 端口
+    username: admin
+    password: 123456
+    virtual-host: /
+
+
 
 
 
