@@ -100,6 +100,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return order.getId();
     }
 
+
     @Override
     public void markOrderPaySuccess(Long orderId) {
         Order order = new Order();
@@ -111,9 +112,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     @Override
     public void cancelOrder(Long orderId) {
-        //TODO 标记订单为已关闭
-
-        //TODO 恢复库存
+        //查询所有商品,恢复库存
+        List<OrderDetail> details = detailService.search(orderId);
+        if (details == null) {
+            return;
+        }
+        //远程调用itemClient恢复库存
+        itemClient.createStock(details);
+        //取消订单
+        Order order = getById(orderId);
+        order.setStatus(5);
+        baseMapper.updateById(order);
     }
 
     private List<OrderDetail> buildDetails(Long orderId, List<ItemDTO> items, Map<Long, Integer> numMap) {

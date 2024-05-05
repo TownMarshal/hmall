@@ -3,6 +3,8 @@ package com.hmall.trade.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.hmall.common.domain.po.OrderDetail;
 
+import java.util.List;
+
 
 /**
  * <p>
@@ -14,4 +16,5 @@ import com.hmall.common.domain.po.OrderDetail;
  */
 public interface IOrderDetailService extends IService<OrderDetail> {
 
+    List<OrderDetail> search(Long orderId);
 }
