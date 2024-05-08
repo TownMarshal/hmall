@@ -4,6 +4,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONUtil;
 import com.hmall.common.domain.doc.ItemDoc;
 import com.hmall.common.domain.po.Item;
+import com.hmall.search.service.SearchService;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
@@ -17,9 +19,11 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
+@Slf4j
 public class SearchListener {
     @Autowired
     private RestHighLevelClient restHighLevelClient;
+
     //使用lazy进行优化
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(value = "item.add.queue", durable = "true",

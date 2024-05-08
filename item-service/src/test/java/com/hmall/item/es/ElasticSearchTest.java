@@ -20,12 +20,13 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-// @SpringBootTest(properties = "spring.profiles.active=local")
+//@SpringBootTest(properties = "spring.profiles.active=local")
 public class ElasticSearchTest {
 
     private RestHighLevelClient client;
@@ -64,7 +65,7 @@ public class ElasticSearchTest {
 
     @Test
     void testSortAndPage() throws IOException {
-        // 0.模拟前段传递的分页参数
+        // 0.模拟前端传递的分页参数
         int pageNo = 1, pageSize = 5;
 
         // 1.创建request对象
