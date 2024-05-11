@@ -58,7 +58,6 @@ public class ItemController {
         itemService.updateById(BeanUtils.copyBean(item, Item.class));
     }
 
-
     @ApiOperation("分页查询商品")
     @GetMapping("/page")
     public PageDTO<ItemDTO> queryItemByPage(PageQuery query) {

@@ -11,9 +11,9 @@ public class EsConfig {
     //注册客户端
 
     @Bean
-    public RestHighLevelClient restHighLevelClient(){
+    public RestHighLevelClient restHighLevelClient() {
         return new RestHighLevelClient(RestClient.builder(
-                HttpHost.create("localhost:9200")
+                HttpHost.create("192.168.58.129:9200")
         ));
     }
 

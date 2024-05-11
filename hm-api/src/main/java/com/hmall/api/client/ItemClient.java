@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.hmall.api.config.DefaultFeignConfig;
 import com.hmall.api.fallback.ItemClientFallback;
 import com.hmall.common.domain.PageDTO;
+import com.hmall.common.domain.PageQuery;
 import com.hmall.common.domain.dto.ItemDTO;
 import com.hmall.common.domain.dto.OrderDetailDTO;
 import com.hmall.common.domain.po.Item;
@@ -26,6 +27,10 @@ import java.util.List;
         configuration = DefaultFeignConfig.class,
         fallbackFactory = ItemClientFallback.class)
 public interface ItemClient {
+
+    @GetMapping("/page")
+    PageDTO<ItemDTO> queryItemByPage(PageQuery query);
+
     @GetMapping("/items")
     List<ItemDTO> queryItemByIds(@RequestParam("ids") Collection<Long> ids);
 

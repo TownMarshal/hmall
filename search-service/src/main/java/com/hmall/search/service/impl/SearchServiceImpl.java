@@ -9,6 +9,7 @@ import com.hmall.common.domain.doc.ItemDoc;
 import com.hmall.common.domain.dto.ItemDTO;
 import com.hmall.common.domain.query.SearchItemQuery;
 import com.hmall.search.service.SearchService;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
@@ -41,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class SearchServiceImpl implements SearchService {
     @Autowired
@@ -53,16 +55,16 @@ public class SearchServiceImpl implements SearchService {
     public List<String> getSuggestion(String key) {
         try {
             //准备请求
-            SearchRequest hotel = new SearchRequest("item");
+            SearchRequest items = new SearchRequest("items");
             //准备DSL
-            hotel.source().suggest(new SuggestBuilder().addSuggestion("suggestion",
+            items.source().suggest(new SuggestBuilder().addSuggestion("suggestion",
                     SuggestBuilders.completionSuggestion
                                     ("suggestion").
                             prefix(key).//关键字
                             skipDuplicates(true)//跳过重复
                             .size(10)));
             //发送请求
-            SearchResponse search = client.search(hotel, RequestOptions.DEFAULT);
+            SearchResponse search = client.search(items, RequestOptions.DEFAULT);
             List<String> list = new ArrayList<>();
             //解析结果
             Suggest suggest = search.getSuggest();
@@ -77,76 +79,78 @@ public class SearchServiceImpl implements SearchService {
             }
             return list;
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("智能补全失败！", e);
             throw new RuntimeException(e);
         }
     }
 
     //基本搜索
     @Override
-    public PageDTO<ItemDoc> getList(SearchItemQuery dto) {
+    public PageDTO<ItemDoc> getList(SearchItemQuery searchItemQuery) {
         try {
             //创建请求对象
-            SearchRequest hotel = new SearchRequest("item");
+            SearchRequest items = new SearchRequest("items");
             //准备DSL
-            buildBasicQuery(dto, hotel);
+            buildBasicQuery(searchItemQuery, items);
             //发送请求
-            SearchResponse search = client.search(hotel, RequestOptions.DEFAULT);
+            SearchResponse search = client.search(items, RequestOptions.DEFAULT);
             //解析响应并返回前端需要的对象格式
             return toPageResult(search);
         } catch (IOException e) {
+            log.error("基本查询失败！", e);
             throw new RuntimeException(e);
         }
     }
 
     //过滤
     @Override
-    public Map<String, List<String>> getFilters(SearchItemQuery dto) {
+    public Map<String, List<String>> getFilters(SearchItemQuery searchItemQuery) {
         try {
             //创建请求对象
-            SearchRequest hotel = new SearchRequest("item");
+            SearchRequest items = new SearchRequest("items");
             //准备DSL
-            buildBasicQuery(dto, hotel);
+            buildBasicQuery(searchItemQuery, items);
             // 聚合
-            hotel.source().aggregation(AggregationBuilders.terms("brand").field("brand").size(20));
-            hotel.source().aggregation(AggregationBuilders.terms("category").field("category").size(20));
+            items.source().aggregation(AggregationBuilders.terms("brand").field("brand").size(20));
+            items.source().aggregation(AggregationBuilders.terms("category").field("category").size(20));
             //发出请求
-            SearchResponse search = client.search(hotel, RequestOptions.DEFAULT);
+            SearchResponse search = client.search(items, RequestOptions.DEFAULT);
             //解析结果
             Aggregations aggregations = search.getAggregations();
             //获取品牌结果
             List<String> brand = getlist("brand", aggregations);
             //获取结果
-            List<String> city = getlist("category", aggregations);
+            List<String> category = getlist("category", aggregations);
             Map<String, List<String>> map = new HashMap<>();
-            map.put("category", city);
+            map.put("category", category);
             map.put("brand", brand);
             return map;
         } catch (IOException e) {
+            log.error("过滤查询失败！", e);
             throw new RuntimeException(e);
         }
     }
 
-    //添加
+    //添加（查询或新增文档数据）
     @Override
     public void insert(Long id) {
         try {
             ItemDTO itemDTO = itemClient.queryItemById(id);
-            IndexRequest hotel = new IndexRequest("item").id(id.toString());
-            hotel.source(JSONUtil.toJsonStr(itemDTO), XContentType.JSON);
-            client.index(hotel, RequestOptions.DEFAULT);
+            IndexRequest items = new IndexRequest("items").id(id.toString());
+            items.source(JSONUtil.toJsonStr(itemDTO), XContentType.JSON);
+            client.index(items, RequestOptions.DEFAULT);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
 
-    //删除
+    //删除（删除文档）
     @Override
     public void delete(Long id) {
         try {
-            DeleteRequest hotel = new DeleteRequest("item").id(id.toString());
-            client.delete(hotel, RequestOptions.DEFAULT);
+            DeleteRequest items = new DeleteRequest("items").id(id.toString());
+            client.delete(items, RequestOptions.DEFAULT);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -168,51 +172,50 @@ public class SearchServiceImpl implements SearchService {
         return list;
     }
 
-    private PageDTO<ItemDoc> toPageResult(SearchResponse search) {
+    private PageDTO<ItemDoc> toPageResult(SearchResponse response) {
         //创建前端需求对象
         PageDTO<ItemDoc> pageResult = new PageDTO<>();
         //解析响应
-        SearchHits hits = search.getHits();
+        SearchHits searchHits = response.getHits();
         //获得数据总条数
-        long value = hits.getTotalHits().value;
+        long value = searchHits.getTotalHits().value;
         pageResult.setTotal(value);
         //获得文档数组
-        SearchHit[] hits1 = hits.getHits();
-        List<ItemDoc> hotelDocs = new ArrayList<>();
+        SearchHit[] hits = searchHits.getHits();
+        List<ItemDoc> itemDocs = new ArrayList<>();
         //遍历文档数组
-        for (SearchHit documentFields : hits1) {
+        for (SearchHit hit : hits) {
             //获得文档source的JSON格式
-            String json = documentFields.getSourceAsString();
+            String json = hit.getSourceAsString();
             //反序列化获得对象
-            ItemDoc hotelDoc = JSONUtil.toBean(json, ItemDoc.class);
+            ItemDoc itemDoc = JSONUtil.toBean(json, ItemDoc.class);
             //获得高亮集合
-            Map<String, HighlightField> highlightFields = documentFields.getHighlightFields();
-            //  System.out.println(highlightFields);
+            Map<String, HighlightField> hlf = hit.getHighlightFields();
             //判断高亮集合是否为空
-            if (highlightFields != null && !highlightFields.isEmpty()) {
+            if (hlf != null && !hlf.isEmpty()) {
                 //从集合中取出name的高亮部分
-                HighlightField name = highlightFields.get("name");
+                HighlightField name = hlf.get("name");
                 //判断是否有内容
                 if (name != null) {
                     //取出name高亮部分
-                    String s = name.getFragments()[0].toString();
+                    String hlfName = name.getFragments()[0].toString();
                     //   System.out.println(s);
                     //高亮name代替原本内容
-                    hotelDoc.setName(s);
+                    itemDoc.setName(hlfName);
                 }
             }
             //将对象放入list集合
-            hotelDocs.add(hotelDoc);
+            itemDocs.add(itemDoc);
         }
         //放入前端需要的对象中并返回
-        pageResult.setList(hotelDocs);
+        pageResult.setList(itemDocs);
         return pageResult;
     }
 
-    private void buildBasicQuery(SearchItemQuery dto, SearchRequest request) {
+    private void buildBasicQuery(SearchItemQuery searchItemQuery, SearchRequest request) {
         //创建bool查询
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        String key = dto.getKey();
+        String key = searchItemQuery.getKey();
         //判断key及搜索框是否有输入内容
         if (StringUtils.isNotBlank(key)) {
             //key不为空，分词搜索all中等于key
@@ -221,13 +224,13 @@ public class SearchServiceImpl implements SearchService {
             //key为空，搜索全部
             boolQueryBuilder.must(QueryBuilders.matchAllQuery());
         }
-        String city = dto.getCategory();
+        String category = searchItemQuery.getCategory();
         //判断city是否为空及页面是否选择了城市
-        if (StringUtils.isNotBlank(city)) {
-            //过滤精准查询city字段和city相等
-            boolQueryBuilder.filter(QueryBuilders.termQuery("category", city));
+        if (StringUtils.isNotBlank(category)) {
+            //过滤精准查询category字段和category相等
+            boolQueryBuilder.filter(QueryBuilders.termQuery("category", category));
         }
-        String brand = dto.getBrand();
+        String brand = searchItemQuery.getBrand();
         //判断brand是否为空及页面是否选择了品牌
         if (StringUtils.isNotBlank(brand)) {
             //过滤 精准查询brand字段为brand
@@ -235,11 +238,11 @@ public class SearchServiceImpl implements SearchService {
         }
 
         //判断价格范围的前后值是否为空
-        if (dto.getMinPrice() != null && dto.getMaxPrice() != null) {
+        if (searchItemQuery.getMinPrice() != null && searchItemQuery.getMaxPrice() != null) {
             //过滤 价格字段在范围内中的
             boolQueryBuilder.filter(QueryBuilders.rangeQuery("price")
-                    .gte(dto.getMinPrice() * 100)
-                    .lte(dto.getMaxPrice() * 100));
+                    .gte(searchItemQuery.getMinPrice() * 100)
+                    .lte(searchItemQuery.getMaxPrice() * 100));
         }
 
         //算分查询  判断isAD是否为true，为true及进行加分 没有设置方法就是相乘 乘以10  当有其他排序的时候，得分算法就会失效，
@@ -256,28 +259,28 @@ public class SearchServiceImpl implements SearchService {
         request.source().query(isAD);
 
         //设置高亮 将搜索key中的分词在name字段中出现的设置高亮
-        if (StringUtils.isNotBlank(dto.getKey())) {
+        if (StringUtils.isNotBlank(searchItemQuery.getKey())) {
             request.source().highlighter(new HighlightBuilder().field("name").requireFieldMatch(Boolean.FALSE).
                     preTags("<em>").postTags("</em>"));
         }
         //判断页码是否为空
         int page = 1;
-        if (dto.getPageNo() != null) {
-            page = dto.getPageNo();
+        if (searchItemQuery.getPageNo() != null) {
+            page = searchItemQuery.getPageNo();
         }
         //判断每页行数是否为空
         int size = 10;
-        if (dto.getPageSize() != null) {
-            size = dto.getPageSize();
+        if (searchItemQuery.getPageSize() != null) {
+            size = searchItemQuery.getPageSize();
         }
         //设置分页
         request.source().from((page - 1) * size).size(size);
         //判断是否按照价钱排序
-        if (dto.getSortBy().equals("price")) {
+        if (searchItemQuery.getSortBy().equals("price")) {
             request.source().sort("price", SortOrder.ASC).sort("sold", SortOrder.DESC);
         }
         //判断是否按照评分排序
-        if (dto.getSortBy().equals("sold")) {
+        if (searchItemQuery.getSortBy().equals("sold")) {
             request.source().sort("sold", SortOrder.DESC).sort("price", SortOrder.ASC);
         }
 //            hotel.source().sort("price",SortOrder.ASC);
